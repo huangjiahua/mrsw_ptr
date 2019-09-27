@@ -38,6 +38,14 @@ public:
             return ptr_->Get();
         }
 
+        const T *Get() const {
+            return ptr_->Get();
+        }
+
+        explicit operator bool() const {
+            return ptr_->Get() != nullptr;
+        }
+
         ~Reader() {
             if (ptr_)
                 ptr_->FinishRead();
@@ -79,6 +87,12 @@ public:
 
 public:
     explicit MrswPtr(T *ptr) : data_(PtrToData(ptr, 0)) {}
+
+    MrswPtr(const MrswPtr &other) : data_(other.data_.load()) {}
+
+    MrswPtr(MrswPtr &&other) noexcept: data_(other.data_.load()) {
+        other.data_.store(0);
+    }
 
     Reader GetReader() {
         PrepareRead();
